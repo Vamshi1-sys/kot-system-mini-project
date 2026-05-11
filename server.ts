@@ -332,6 +332,21 @@ app.get('/api/restaurant/:id/kitchen', (req, res) => {
   res.json(ordersWithItems);
 });
 
+app.get('/api/restaurant/orders', (req, res) => {
+  const { restaurant_id } = req.query;
+  if (!restaurant_id) {
+    return res.status(400).json({ error: 'restaurant_id is required' });
+  }
+
+  const orders = db.prepare("SELECT * FROM orders WHERE restaurant_id = ? ORDER BY created_time DESC").all(restaurant_id) as any[];
+  const ordersWithItems = orders.map(order => {
+    const items = db.prepare('SELECT * FROM order_items WHERE order_id = ?').all(order.order_id);
+    return { ...order, items };
+  });
+
+  res.json({ orders: ordersWithItems });
+});
+
 app.patch('/api/orders/:id/status', (req, res) => {
   const { status } = req.body;
   db.prepare('UPDATE orders SET status = ? WHERE order_id = ?').run(status, req.params.id);
