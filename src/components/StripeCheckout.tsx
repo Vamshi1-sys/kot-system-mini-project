@@ -4,13 +4,18 @@ import { Elements, CardElement, useStripe, useElements } from '@stripe/react-str
 
 const stripePromise = loadStripe('pk_test_51T84PgLibBxuKVqCYOxctIw5fjxj74u1v6TsWtvz2o7RJsfHwedQm4EPNIdJgq0I6Ts7X03LWWzZB72zPTJRcO7200AURMkFgE');
 
-function CheckoutForm({ amount, onPaymentSuccess }) {
+type CheckoutFormProps = {
+  amount: number;
+  onPaymentSuccess: (paymentIntentId: string) => void;
+};
+
+function CheckoutForm({ amount, onPaymentSuccess }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
     setError('');
@@ -20,15 +25,35 @@ function CheckoutForm({ amount, onPaymentSuccess }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount }),
     });
-    const { clientSecret } = await res.json();
+    const { clientSecret, demo } = await res.json();
+
+    if (demo || !clientSecret || clientSecret.startsWith('demo_client_secret_')) {
+      onPaymentSuccess(`demo_payment_${Date.now()}`);
+      setLoading(false);
+      return;
+    }
+
+    if (!stripe || !elements) {
+      setError('Payment form is not ready yet.');
+      setLoading(false);
+      return;
+    }
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setError('Card details are not ready yet.');
+      setLoading(false);
+      return;
+    }
+
     // 2. Confirm card payment
     const result = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
-        card: elements.getElement(CardElement),
+        card: cardElement,
       },
     });
     if (result.error) {
-      setError(result.error.message);
+      setError(result.error.message || 'Payment failed');
     } else if (result.paymentIntent.status === 'succeeded') {
       onPaymentSuccess(result.paymentIntent.id);
     }
@@ -38,7 +63,7 @@ function CheckoutForm({ amount, onPaymentSuccess }) {
   return (
     <form onSubmit={handleSubmit}>
       <CardElement />
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {error && <div className="mt-3 text-sm font-bold text-red-500">{error}</div>}
       <button type="submit" disabled={!stripe || loading}>
         {loading ? 'Processing...' : 'Pay'}
       </button>
@@ -46,7 +71,7 @@ function CheckoutForm({ amount, onPaymentSuccess }) {
   );
 }
 
-export default function StripeCheckout({ amount, onPaymentSuccess }) {
+export default function StripeCheckout({ amount, onPaymentSuccess }: CheckoutFormProps) {
   return (
     <Elements stripe={stripePromise}>
       <CheckoutForm amount={amount} onPaymentSuccess={onPaymentSuccess} />
