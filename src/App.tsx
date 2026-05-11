@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
@@ -13,10 +13,11 @@ import { ShieldAlert } from 'lucide-react';
 
 function MaintenanceWrapper({ children }: { children: React.ReactNode }) {
   const { settings, loading } = useSettings();
+  const location = useLocation();
   
   if (loading) return null;
   
-  if (settings.maintenance_mode === 'true' && !window.location.pathname.startsWith('/admin')) {
+  if (settings.maintenance_mode === 'true' && !location.pathname.startsWith('/admin')) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6 text-center">
         <div className="max-w-md">
