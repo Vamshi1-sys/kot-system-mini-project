@@ -1,28 +1,6 @@
-
 import express from 'express';
-const app = express();
-
 import dotenv from 'dotenv';
-dotenv.config();
 import Stripe from 'stripe';
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
-app.use(express.json());
-
-// Stripe Payment Intent route
-app.post('/api/create-payment-intent', async (req, res) => {
-  const { amount, currency = 'inr', metadata = {} } = req.body;
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency,
-      metadata,
-    });
-    res.json({ clientSecret: paymentIntent.client_secret });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import fs from 'fs';
@@ -31,6 +9,11 @@ import session from 'express-session';
 import QRCode from 'qrcode';
 import multer from 'multer';
 import cors from 'cors';
+
+dotenv.config();
+
+const app = express();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
 
 declare module 'express-session' {
   interface SessionData {
@@ -148,6 +131,21 @@ if (!fs.existsSync('./qr_codes')) fs.mkdirSync('./qr_codes');
 if (!fs.existsSync('./static/images')) fs.mkdirSync('./static/images', { recursive: true });
 
 // API Routes
+
+// Stripe Payment Intent route
+app.post('/api/create-payment-intent', async (req, res) => {
+  const { amount, currency = 'inr', metadata = {} } = req.body;
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency,
+      metadata,
+    });
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Super Admin Auth (Hardcoded for demo)
 app.post('/api/admin/login', (req, res) => {
@@ -365,7 +363,20 @@ async function startServer() {
       server: { middlewareMode: true },
       appType: 'spa',
     });
-    app.use(vite.middlewares);
+    
+    // Add Vite middleware but exclude API routes
+    app.use((req, res, next) => {
+      if (req.path.startsWith('/api/')) {
+        next();
+      } else {
+        vite.middlewares(req, res, next);
+      }
+    });
+    
+    // Fallback to Vite for SPA routing
+    app.get('*', (req, res, next) => {
+      vite.middlewares(req, res, next);
+    });
   } else {
     app.use(express.static('dist'));
     app.get('*', (req, res) => {
