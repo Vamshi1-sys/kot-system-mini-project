@@ -507,6 +507,11 @@ app.use((_req, res) => {
 });
 
 export default function handler(req, res) {
+  const pathValue = Array.isArray(req.query?.path) ? req.query.path.join('/') : req.query?.path;
+  if (pathValue) {
+    req.url = `/api/${pathValue}`;
+  }
+
   return new Promise((resolve) => {
     app(req, res, () => {
       resolve(undefined);
