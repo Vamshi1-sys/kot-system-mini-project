@@ -18,6 +18,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSettings } from '../context/SettingsContext';
+import { apiUrl } from '../lib/api';
 
 export default function AdminDashboard() {
   const { settings: globalSettings, refreshSettings } = useSettings();
@@ -38,19 +39,19 @@ export default function AdminDashboard() {
   }, []);
 
   const fetchStats = async () => {
-    const res = await fetch('/api/admin/stats');
+    const res = await fetch(apiUrl('/api/admin/stats'));
     const data = await res.json();
     setStats(data);
   };
 
   const fetchRestaurants = async () => {
-    const res = await fetch('/api/admin/restaurants');
+    const res = await fetch(apiUrl('/api/admin/restaurants'));
     const data = await res.json();
     setRestaurants(data);
   };
 
   const fetchSettings = async () => {
-    const res = await fetch('/api/admin/settings');
+    const res = await fetch(apiUrl('/api/admin/settings'));
     const data = await res.json();
     setSettings(data);
   };
@@ -59,7 +60,7 @@ export default function AdminDashboard() {
     e.preventDefault();
     setIsSavingSettings(true);
     try {
-      const res = await fetch('/api/admin/settings', {
+      const res = await fetch(apiUrl('/api/admin/settings'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings)
@@ -90,7 +91,7 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = showModal === 'add' ? '/api/admin/restaurants' : `/api/admin/restaurants/${currentRes.restaurant_id}`;
+    const url = showModal === 'add' ? apiUrl('/api/admin/restaurants') : apiUrl(`/api/admin/restaurants/${currentRes.restaurant_id}`);
     const method = showModal === 'add' ? 'POST' : 'PATCH';
 
     const res = await fetch(url, {
@@ -112,7 +113,7 @@ export default function AdminDashboard() {
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this restaurant? This action cannot be undone.')) return;
-    await fetch(`/api/admin/restaurants/${id}`, { method: 'DELETE' });
+    await fetch(apiUrl(`/api/admin/restaurants/${id}`), { method: 'DELETE' });
     toast.success('Restaurant deleted');
     fetchRestaurants();
     fetchStats();

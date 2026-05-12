@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { apiUrl } from '../lib/api';
 
 const stripePromise = loadStripe('pk_test_51T84PgLibBxuKVqCYOxctIw5fjxj74u1v6TsWtvz2o7RJsfHwedQm4EPNIdJgq0I6Ts7X03LWWzZB72zPTJRcO7200AURMkFgE');
 
@@ -20,7 +21,7 @@ function CheckoutForm({ amount, onPaymentSuccess }: CheckoutFormProps) {
     setLoading(true);
     setError('');
     // 1. Create PaymentIntent on backend
-    const res = await fetch('/api/create-payment-intent', {
+    const res = await fetch(apiUrl('/api/create-payment-intent'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount }),

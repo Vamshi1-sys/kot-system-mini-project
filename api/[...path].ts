@@ -570,6 +570,11 @@ app.use((_req, res) => {
   res.status(404).json({ success: false, message: 'Not found' });
 });
 
-export default function handler(req: unknown, res: unknown) {
-  return (app as any)(req, res);
+export default function handler(req: any, res: any) {
+  // Ensure body is parsed properly for Vercel
+  return new Promise((resolve) => {
+    app(req, res, () => {
+      resolve(undefined);
+    });
+  });
 }

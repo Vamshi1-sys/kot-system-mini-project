@@ -21,6 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSettings } from '../context/SettingsContext';
+import { apiUrl } from '../lib/api';
 
 export default function RestaurantDashboard() {
   const { settings } = useSettings();
@@ -49,13 +50,13 @@ export default function RestaurantDashboard() {
   }, [restaurantId]);
 
   const fetchStats = async () => {
-    const res = await fetch(`/api/restaurant/${restaurantId}/stats`);
+    const res = await fetch(apiUrl(`/api/restaurant/${restaurantId}/stats`));
     const data = await res.json();
     setStats(data);
   };
 
   const fetchMenu = async () => {
-    const res = await fetch(`/api/restaurant/${restaurantId}/menu`);
+    const res = await fetch(apiUrl(`/api/restaurant/${restaurantId}/menu`));
     const data = await res.json();
     setMenu(data);
   };
@@ -75,7 +76,7 @@ export default function RestaurantDashboard() {
 
   const handleMenuSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const url = showMenuModal === 'add' ? `/api/restaurant/${restaurantId}/menu` : `/api/menu/${currentItem.menu_id}`;
+    const url = showMenuModal === 'add' ? apiUrl(`/api/restaurant/${restaurantId}/menu`) : apiUrl(`/api/menu/${currentItem.menu_id}`);
     const method = showMenuModal === 'add' ? 'POST' : 'PATCH';
 
     const body = new FormData();
@@ -101,13 +102,13 @@ export default function RestaurantDashboard() {
 
   const handleDeleteMenu = async (id: number) => {
     if (!confirm('Delete this item?')) return;
-    await fetch(`/api/menu/${id}`, { method: 'DELETE' });
+    await fetch(apiUrl(`/api/menu/${id}`), { method: 'DELETE' });
     toast.success('Item removed');
     fetchMenu();
   };
 
   const generateQR = async () => {
-    const res = await fetch(`/api/restaurant/${restaurantId}/qr?table=${tableNumber}`);
+    const res = await fetch(apiUrl(`/api/restaurant/${restaurantId}/qr?table=${tableNumber}`));
     const data = await res.json();
     setQrResult(data);
     toast.success(`QR Code generated for Table ${tableNumber}`);

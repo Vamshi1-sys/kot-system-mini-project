@@ -12,6 +12,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { apiUrl } from '../lib/api';
 
 export default function KitchenDashboard() {
   const [orders, setOrders] = useState<any[]>([]);
@@ -31,7 +32,7 @@ export default function KitchenDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch(`/api/restaurant/orders?restaurant_id=${restaurantId}`);
+      const res = await fetch(apiUrl(`/api/restaurant/orders?restaurant_id=${restaurantId}`));
       const data = await res.json();
       // Filter out completed orders for the kitchen view
       setOrders(data.orders.filter((o: any) => o.status !== 'Completed'));
@@ -43,7 +44,7 @@ export default function KitchenDashboard() {
   };
 
   const updateStatus = async (orderId: number, status: string) => {
-    const res = await fetch(`/api/orders/${orderId}/status`, {
+    const res = await fetch(apiUrl(`/api/orders/${orderId}/status`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })

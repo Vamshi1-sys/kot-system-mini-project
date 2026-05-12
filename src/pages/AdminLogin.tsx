@@ -5,6 +5,7 @@ import { ShieldCheck, Lock, Mail, ArrowLeft, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useSettings } from '../context/SettingsContext';
+import { apiUrl } from '../lib/api';
 
 export default function AdminLogin() {
   const { settings } = useSettings();
@@ -17,7 +18,7 @@ export default function AdminLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch(apiUrl('/api/admin/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

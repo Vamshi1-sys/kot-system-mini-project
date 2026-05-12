@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSettings } from '../context/SettingsContext';
+import { apiUrl } from '../lib/api';
 
 export default function MenuPage() {
   const { settings } = useSettings();
@@ -39,7 +40,7 @@ export default function MenuPage() {
   }, [restaurantId]);
 
   const fetchMenu = async () => {
-    const res = await fetch(`/api/menu?restaurant_id=${restaurantId}`);
+    const res = await fetch(apiUrl(`/api/menu?restaurant_id=${restaurantId}`));
     const data = await res.json();
     setMenu(data.menu);
     setRestaurantName(data.restaurantName);
@@ -82,7 +83,7 @@ export default function MenuPage() {
   const [processingOrder, setProcessingOrder] = useState(false);
   const handlePaymentSuccess = async (paymentIntentId) => {
     setProcessingOrder(true);
-    const res = await fetch('/api/orders', {
+    const res = await fetch(apiUrl('/api/orders'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

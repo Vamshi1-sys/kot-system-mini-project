@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useSettings } from '../context/SettingsContext';
+import { apiUrl } from '../lib/api';
 
 export default function OrderStatus() {
   const { settings } = useSettings();
@@ -26,7 +27,7 @@ export default function OrderStatus() {
 
   const fetchOrder = async () => {
     try {
-      const res = await fetch(`/api/orders/${orderId}`);
+      const res = await fetch(apiUrl(`/api/orders/${orderId}`));
       const data = await res.json();
       setOrder(data);
     } catch (err) {

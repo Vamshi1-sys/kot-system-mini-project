@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { apiUrl } from '../lib/api';
 
 interface Settings {
   app_name: string;
@@ -32,7 +33,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch('/api/settings/public');
+      const res = await fetch(apiUrl('/api/settings/public'));
       if (res.ok) {
         const data = await res.json();
         setSettings(prev => ({ ...prev, ...data }));

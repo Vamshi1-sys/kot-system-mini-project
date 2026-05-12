@@ -5,6 +5,7 @@ import { UtensilsCrossed, Lock, Mail, ArrowLeft, Utensils } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useSettings } from '../context/SettingsContext';
+import { apiUrl } from '../lib/api';
 
 export default function RestaurantLogin() {
   const { settings } = useSettings();
@@ -17,7 +18,7 @@ export default function RestaurantLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await fetch('/api/restaurant/login', {
+      const res = await fetch(apiUrl('/api/restaurant/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
