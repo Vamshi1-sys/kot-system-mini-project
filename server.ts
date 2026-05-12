@@ -13,7 +13,7 @@ import cors from 'cors';
 dotenv.config();
 
 const app = express();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2022-11-15' });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 declare module 'express-session' {
   interface SessionData {
