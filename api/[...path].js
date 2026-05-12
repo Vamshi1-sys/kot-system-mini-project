@@ -1,12 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const multer = require('multer');
-const QRCode = require('qrcode');
-const fs = require('fs');
-const os = require('os');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import multer from 'multer';
+import QRCode from 'qrcode';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
-exports.config = {
+export const config = {
   api: {
     bodyParser: false,
   },
@@ -506,7 +506,7 @@ app.use((_req, res) => {
   res.status(404).json({ success: false, message: 'Not found' });
 });
 
-module.exports = function handler(req, res) {
+export default function handler(req, res) {
   return new Promise((resolve) => {
     app(req, res, () => {
       resolve(undefined);
